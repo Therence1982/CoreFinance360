@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CoreFinance360 — Architecture Documentation</title>
+<style>
+  :root {
+    --navy: #0D1F3C;
+    --blue: #1A56DB;
+    --lblue: #EBF2FF;
+    --gold: #C8920A;
+    --lgold: #FFF8E6;
+    --green: #14532D;
+    --lgreen: #DCFCE7;
+    --teal: #0E7490;
+    --lteal: #CFFAFE;
+    --purple: #5B2D8E;
+    --lpurple: #EDE4F8;
+    --slate: #334155;
+    --muted: #64748B;
+    --line: #E2E8F0;
+    --gray: #F8FAFC;
+    --white: #FFFFFF;
+    --red: #991B1B;
+    --lred: #FEE2E2;
+    --orange: #C05020;
+    --amber: #92400E;
+    --lamber: #FEF3C7;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #F1F5F9;
+    color: var(--slate);
+    line-height: 1.6;
+  }
+
+  /* ── HEADER ── */
+  .site-header {
+    background: var(--navy);
+    padding: 48px 0 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .site-header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      90deg,
+      rgba(26,86,219,0.06) 0px,
+      rgba(26,86,219,0.06) 1px,
+      transparent 1px,
+      transparent 60px
+    );
+  }
+  .site-header .inner { position: relative; z-index: 1; }
+  .site-header h1 {
+    font-size: 42px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+  .site-header .sub {
+    font-size: 16px;
+    color: #93C5FD;
+    margin-bottom: 24px;
+  }
+  .site-header .meta {
+    font-size: 13px;
+    color: #64748B;
+  }
+  .badge-row {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
+  .badge {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #CBD5E1;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 14px;
+    border-radius: 20px;
+    letter-spacing: 0.3px;
+  }
+
+  /* ── NAV ── */
+  .toc {
+    background: var(--white);
+    border-bottom: 1px solid var(--line);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: 0 24px;
+  }
+  .toc-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+  }
+  .toc a {
+    display: block;
+    padding: 14px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .toc a:hover { color: var(--blue); border-bottom-color: var(--blue); }
+
+  /* ── LAYOUT ── */
+  .page { max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  /* ── SECTION ── */
+  .section { margin-bottom: 60px; }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--line);
+  }
+  .section-num {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; color: #fff;
+    flex-shrink: 0;
+  }
+  .section-header h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--navy);
+    letter-spacing: -0.3px;
+  }
+  .section-header p {
+    font-size: 14px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* ── DIAGRAM CARD ── */
+  .diagram-card {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 32px;
+  }
+  .diagram-card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .diagram-card-header h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--navy);
+  }
+  .diagram-card-header .tag {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 12px;
+    letter-spacing: 0.3px;
+  }
+  .diagram-card-body { padding: 24px; }
+  .diagram-card svg { width: 100%; height: auto; display: block; }
+
+  /* ── STAT GRID ── */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .stat-card {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 20px 16px;
+    text-align: center;
+  }
+  .stat-card .num {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-card .lbl {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  /* ── TABLE ── */
+  .cf-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    margin-bottom: 24px;
+  }
+  .cf-table th {
+    background: var(--navy);
+    color: #fff;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.3px;
+  }
+  .cf-table th:first-child { border-radius: 0; }
+  .cf-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  .cf-table tr:nth-child(even) td { background: var(--gray); }
+  .cf-table tr:hover td { background: var(--lblue); }
+
+  /* ── LAYER STACK ── */
+  .layer-stack { display: flex; flex-direction: column; gap: 6px; margin-bottom: 24px; }
+  .layer-row {
+    display: flex;
+    align-items: stretch;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(0,0,0,0.08);
+  }
+  .layer-num {
+    width: 52px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 700; color: #fff;
+    flex-shrink: 0;
+  }
+  .layer-body {
+    flex: 1;
+    padding: 12px 16px;
+    background: var(--white);
+  }
+  .layer-body strong {
+    font-size: 14px;
+    color: var(--navy);
+    display: block;
+    margin-bottom: 3px;
+  }
+  .layer-body span {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .layer-status {
+    padding: 0 16px;
+    display: flex; align-items: center;
+    background: var(--white);
+    font-size: 11px;
+    font-weight: 600;
+    border-left: 1px solid var(--line);
+  }
+  .status-active { color: var(--green); }
+  .status-partial { color: var(--teal); }
+  .status-design { color: var(--muted); }
+
+  /* ── FLOW TABLE ── */
+  .flow-category {
+    margin-bottom: 20px;
+  }
+  .flow-cat-header {
+    padding: 9px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    border-radius: 6px 6px 0 0;
+  }
+  .flow-rows { border: 1px solid var(--line); border-top: none; border-radius: 0 0 6px 6px; overflow: hidden; }
+  .flow-row {
+    display: grid;
+    grid-template-columns: 1fr 140px 160px;
+    padding: 9px 14px;
+    font-size: 13px;
+    border-bottom: 1px solid var(--line);
+    align-items: center;
+  }
+  .flow-row:last-child { border-bottom: none; }
+  .flow-row:nth-child(even) { background: var(--gray); }
+  .flow-row .flow-name { font-weight: 500; color: var(--navy); }
+  .flow-row .flow-obj { color: var(--muted); font-size: 12px; }
+  .flow-row .flow-trigger { font-size: 12px; color: var(--muted); text-align: right; }
+
+  /* ── CHAIN DIAGRAM ── */
+  .chain { display: flex; flex-direction: column; gap: 0; }
+  .chain-step {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+  }
+  .chain-line {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 32px;
+    flex-shrink: 0;
+  }
+  .chain-dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 2px solid var(--white);
+    flex-shrink: 0;
+    margin-top: 18px;
+  }
+  .chain-vert {
+    flex: 1;
+    width: 2px;
+    background: var(--line);
+    margin: 2px 0;
+  }
+  .chain-step:last-child .chain-vert { display: none; }
+  .chain-content {
+    flex: 1;
+    padding: 12px 16px;
+    margin: 6px 0;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: var(--white);
+  }
+  .chain-content .chain-title {
+    font-size: 14px; font-weight: 600; color: var(--navy);
+    margin-bottom: 3px;
+  }
+  .chain-content .chain-sub {
+    font-size: 12px; color: var(--muted);
+  }
+  .chain-layer-badge {
+    display: inline-block;
+    font-size: 10px; font-weight: 600;
+    padding: 2px 8px; border-radius: 10px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  /* ── APPROVAL DIAGRAM ── */
+  .approval-flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 16px;
+    overflow-x: auto;
+    padding: 4px 0;
+  }
+  .ap-box {
+    flex-shrink: 0;
+    border-radius: 8px;
+    padding: 14px 16px;
+    min-width: 160px;
+    text-align: center;
+    border: 1px solid var(--line);
+  }
+  .ap-box .ap-level { font-size: 11px; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .ap-box .ap-name { font-size: 13px; font-weight: 600; color: var(--navy); }
+  .ap-box .ap-role { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .ap-box .ap-limit { font-size: 12px; font-weight: 600; margin-top: 6px; }
+  .ap-arrow {
+    font-size: 20px;
+    color: var(--line);
+    padding: 0 8px;
+    flex-shrink: 0;
+  }
+
+  /* ── OBJECT GRID ── */
+  .object-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .object-card {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .object-card-top {
+    height: 5px;
+  }
+  .object-card-body {
+    padding: 12px 14px;
+  }
+  .object-card-body .obj-name {
+    font-size: 13px; font-weight: 600; color: var(--navy);
+    margin-bottom: 4px;
+  }
+  .object-card-body .obj-desc {
+    font-size: 12px; color: var(--muted); line-height: 1.5;
+  }
+  .object-card-body .obj-fields {
+    margin-top: 8px;
+    font-size: 11px; font-weight: 600;
+    color: var(--blue);
+  }
+
+  /* ── CURRENCY TABLE ── */
+  .currency-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .currency-card {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .currency-card .cc { font-size: 20px; font-weight: 700; color: var(--blue); margin-bottom: 2px; }
+  .currency-card .cn { font-size: 12px; color: var(--navy); font-weight: 500; }
+  .currency-card .cr { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  /* ── FOOTER ── */
+  .site-footer {
+    background: var(--navy);
+    color: #64748B;
+    text-align: center;
+    padding: 32px 24px;
+    font-size: 13px;
+  }
+  .site-footer strong { color: #94A3B8; }
+
+  /* ── VR TABLE ── */
+  .vr-grid {
+    display: grid;
+    grid-template-columns: 1fr 120px 1fr;
+    gap: 0;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .vr-header {
+    background: var(--navy);
+    color: #fff;
+    padding: 9px 14px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .vr-cell {
+    padding: 10px 14px;
+    font-size: 13px;
+    border-bottom: 1px solid var(--line);
+    border-right: 1px solid var(--line);
+  }
+  .vr-cell:nth-child(3n) { border-right: none; }
+  .vr-cell.name { font-weight: 500; color: var(--navy); }
+  .vr-cell.obj { color: var(--muted); font-size: 12px; }
+  .vr-cell.why { color: var(--green); font-size: 12px; }
+
+  @media (max-width: 640px) {
+    .site-header h1 { font-size: 28px; }
+    .approval-flow { flex-direction: column; align-items: flex-start; }
+    .ap-arrow { transform: rotate(90deg); }
+    .vr-grid { grid-template-columns: 1fr; }
+    .vr-header:not(:first-child) { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══════════════════════════════════════════════════════ -->
+<header class="site-header">
+  <div class="inner">
+    <h1>CoreFinance360</h1>
+    <p class="sub">CF360 — Architecture &amp; Technical Documentation</p>
+    <p class="meta">Built by Therence Ngoa &nbsp;·&nbsp; May 2026 &nbsp;·&nbsp; Salesforce Developer Edition &nbsp;·&nbsp; Org ID: 00DNS00000r86g1</p>
+    <div class="badge-row">
+      <span class="badge">BCEAO/CEMAC</span>
+      <span class="badge">12 Objects</span>
+      <span class="badge">27+ Flows</span>
+      <span class="badge">10 Currencies</span>
+      <span class="badge">17 Roles</span>
+      <span class="badge">3 Approval Processes</span>
+      <span class="badge">8 Validation Rules</span>
+      <span class="badge">7 Layers</span>
+    </div>
+  </div>
+</header>
+
+<!-- ══ NAV ══════════════════════════════════════════════════════════ -->
+<nav class="toc">
+  <div class="toc-inner">
+    <a href="#overview">Overview</a>
+    <a href="#layers">7-Layer Architecture</a>
+    <a href="#objects">Object Inventory</a>
+    <a href="#flows">Flow Inventory</a>
+    <a href="#approvals">Approval Processes</a>
+    <a href="#rules">Validation Rules</a>
+    <a href="#currencies">Currencies</a>
+    <a href="#roles">Roles</a>
+    <a href="#breach-chain">Breach Chain</a>
+    <a href="#risk-score">Risk Score</a>
+  </div>
+</nav>
+
+<!-- ══ PAGE ═════════════════════════════════════════════════════════ -->
+<main class="page">
+
+  <!-- ── SECTION 1: OVERVIEW ── -->
+  <section class="section" id="overview">
+    <div class="section-header">
+      <div class="section-num" style="background:var(--navy)">1</div>
+      <div>
+        <h2>Platform Overview</h2>
+        <p>What CF360 is, who built it, and what it covers</p>
+      </div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card"><div class="num" style="color:var(--blue)">12</div><div class="lbl">Objects</div></div>
+      <div class="stat-card"><div class="num" style="color:var(--orange)">27+</div><div class="lbl">Flows</div></div>
+      <div class="stat-card"><div class="num" style="color:var(--gold)">10</div><div class="lbl">Currencies</div></div>
+      <div class="stat-card"><div class="num" style="color:var(--green)">17</div><div class="lbl">Roles</div></div>
+      <div class="stat-card"><div class="num" style="color:var(--purple)">3</div><div class="lbl">Approval Processes</div></div>
+      <div class="stat-card"><div class="num" style="color:var(--red)">8</div><div class="lbl">Validation Rules</div></div>
+      <div class="stat-card"><div class="num" style="color:var(--teal)">11</div><div class="lbl">Countries</div></div>
+      <div class="stat-card"><div class="num" style="color:var(--navy)">7</div><div class="lbl">Layers</div></div>
+    </div>
+
+    <table class="cf-table">
+      <tr><th>Property</th><th>Value</th></tr>
+      <tr><td>Platform</td><td>Salesforce Developer Edition — 100% declarative, no Apex code</td></tr>
+      <tr><td>Architecture Pattern</td><td>nCino-inspired — central deal object (Financing Package), stage-gated workflows, multi-level approval</td></tr>
+      <tr><td>Org ID</td><td>00DNS00000r86g1</td></tr>
+      <tr><td>Instance</td><td>IND56</td></tr>
+      <tr><td>Market</td><td>BCEAO (West Africa) + CEMAC (Central Africa) + 5 expansion markets</td></tr>
+      <tr><td>Regulatory Framework</td><td>BCEAO/CEMAC AML compliance, single-borrower exposure limits, covenant reporting</td></tr>
+      <tr><td>Active Users</td><td>5 — Therence Ngoa (Admin), Kwame Asante (CRO), Fatima Diallo (CFO), Ngozi Adeyemi (SCO), Wanjiru Kamau (Credit Officer)</td></tr>
+      <tr><td>Built by</td><td>Therence Ngoa — System Owner &amp; Executive Administrator</td></tr>
+    </table>
+  </section>
+
+  <!-- ── SECTION 2: 7-LAYER ARCHITECTURE ── -->
+  <section class="section" id="layers">
+    <div class="section-header">
+      <div class="section-num" style="background:var(--blue)">2</div>
+      <div>
+        <h2>7-Layer Architecture</h2>
+        <p>Full platform stack from data foundation to mobile experience</p>
+      </div>
+    </div>
+
+    <div class="layer-stack">
+      <div class="layer-row">
+        <div class="layer-num" style="background:#7C3AED">L7</div>
+        <div class="layer-body">
+          <strong>Mobile &amp; Advanced</strong>
+          <span>Covenant Breach Alert · Loan Maturity Warning (daily 6AM) · Portfolio Health Score (weekly Mon 7AM)</span>
+        </div>
+        <div class="layer-status status-active">● Active</div>
+      </div>
+      <div class="layer-row">
+        <div class="layer-num" style="background:#0891B2">L6</div>
+        <div class="layer-body">
+          <strong>Integrations</strong>
+          <span>SMS Approval Notification · Document Request Notification · Credit Bureau Risk Update · Regulatory Audit Log</span>
+        </div>
+        <div class="layer-status status-active">● Active (Simulated)</div>
+      </div>
+      <div class="layer-row">
+        <div class="layer-num" style="background:#0284C7">L5</div>
+        <div class="layer-body">
+          <strong>Experience Cloud</strong>
+          <span>Document Upload Flow · Loan Status Check Flow · 6 portal pages designed · Awaiting Community Plus license</span>
+        </div>
+        <div class="layer-status status-partial">◑ Partial</div>
+      </div>
+      <div class="layer-row">
+        <div class="layer-num" style="background:#047857">L4</div>
+        <div class="layer-body">
+          <strong>Reporting &amp; Analytics</strong>
+          <span>10 Reports · 4 Dashboards (Portfolio, Credit, Compliance, Regulator) · 5 Custom Report Types · 4 List Views</span>
+        </div>
+        <div class="layer-status status-active">● Active</div>
+      </div>
+      <div class="layer-row">
+        <div class="layer-num" style="background:#C8920A">L3</div>
+        <div class="layer-body">
+          <strong>Credit Governance</strong>
+          <span>8 Validation Rules · Exposure Rollup · Doc Checklist Gate · Covenant Monitoring · Credit Exceptions · Audit Logs</span>
+        </div>
+        <div class="layer-status status-active">● Active</div>
+      </div>
+      <div class="layer-row">
+        <div class="layer-num" style="background:#1A56DB">L2</div>
+        <div class="layer-body">
+          <strong>Decision &amp; Automation Engine</strong>
+          <span>27+ Flows · Risk Score Formula (5 dimensions, 100pts) · 3 Approval Processes · Task Creation · Currency Cascade</span>
+        </div>
+        <div class="layer-status status-active">● Active</div>
+      </div>
+      <div class="layer-row">
+        <div class="layer-num" style="background:#0D1F3C">L1</div>
+        <div class="layer-body">
+          <strong>Data Foundation</strong>
+          <span>12 Objects · 180+ Fields · 17 Roles · 13 Permission Sets · 16 Permission Set Groups · 10 Currencies · 5 Active Users</span>
+        </div>
+        <div class="layer-status status-active">● Active</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 3: OBJECTS ── -->
+  <section class="section" id="objects">
+    <div class="section-header">
+      <div class="section-num" style="background:var(--green)">3</div>
+      <div>
+        <h2>Object Inventory</h2>
+        <p>12 objects — Financing Package is the central hub connecting all credit data</p>
+      </div>
+    </div>
+
+    <div class="object-grid">
+      <div class="object-card">
+        <div class="object-card-top" style="background:#1A56DB"></div>
+        <div class="object-card-body">
+          <div class="obj-name">Account</div>
+          <div class="obj-desc">Borrower master. KYC status, risk level, alternative credit scoring, group lending, currency, exposure tracking.</div>
+          <div class="obj-fields">64 fields · Standard</div>
+        </div>
+      </div>
+      <div class="object-card">
+        <div class="object-card-top" style="background:#1A56DB"></div>
+        <div class="object-card-body">
+          <div class="obj-name">Opportunity (Loan Request)</div>
+          <div class="obj-desc">8 lending-specific stages. Gate rules enforce Amount and KYC. Auto-creates Financing Package on Approved.</div>
+          <div class="obj-fields">28 fields · Standard</div>
+        </div>
+      </div>
+      <div class="object-card">
+        <div class="object-card-top" style="background:#C8920A"></div>
+        <div class="object-card-body">
+          <div class="obj-name">Financing Package</div>
+          <div class="obj-desc">Central deal hub. Links all credit objects. Contains 5-dimension Risk Score formula and drives approval routing.</div>
+          <div class="obj-fields">19 fields · Custom</div>
+        </div>
+      </div>
+      <div class="object-card">
+        <div class="object-card-top" style="background:#0E7490"></div>
+        <div class="object-card-body">
+          <div class="obj-name">Credit Facility</div>
+          <div class="obj-desc">Loan product. Type, amount, rate (34-value dependent picklist), repayment schedule, maturity, outstanding balance.</div>
+          <div class="obj-fields">15 fields · Custom</div>
+        </div>
+      </div>
+      <div class="object-card">
+        <div class="object-card-top" style="background:#0E7490"></div>
+        <div class="object-card-body">
+          <div class="obj-name">Borrowing Structure</div>
+          <div class="obj-desc">Multi-party lending. Maps Primary Borrower, Co-Borrower, Guarantor, and Sponsor roles to a single deal.</div>
+          <div class="obj-fields">11 fields · Custom</div>
+        </div>
+      </div>
+      <div class="object-card">
+        <div class="object-card-top" style="background:#14532D"></div>
+        <div class="object-card-body">
+          <div class="obj-name">Collateral</div>
+          <div class="obj-desc">Security pledged. LTV% auto-calculated. Tracks lien position, valuation date, and status. Currency auto-set.</div>
+          <div class="obj-fields">16 fields · Custom</div>
+        </div>
+      </div>
+      <div class="object-card">
+        <div class="object-card-top" style="background:#14532D"></div>
+        <div class="object-card-body">
+          <div class="obj-name">Covenant</div>
+          <div class="obj-desc">Compliance conditions. Real-time breach detection on every save. Daily scheduled monitoring. Breach date required.</div>
+          <div class="obj-fields">15 fields · Custom</div>
+        </div>
+      </div>
+      <div class="object-card">
+        <div class="object-card-top" style="background:#5B2D8E"></div>
+        <div class="object-card-body">
+          <div class="obj-name">Loan Document</div>
+          <div class="obj-desc">Document checklist. 38 document types, field dependency on Loan Type. Doc Gate blocks stage until Required docs approved.</div>
+          <div class="obj-fields">18 fields · Custom</div>
+        </div>
+      </div>
+      <div class="object-card">
+        <div class="object-card-top" style="background:#5B2D8E"></div>
+        <div class="object-card-body">
+          <div class="obj-name">Credit Memo</div>
+          <div class="obj-desc">7-section formal credit write-up. Locks on submission. Routes through 3-level approval process.</div>
+          <div class="obj-fields">14 fields · Custom</div>
+        </div>
+      </div>
+      <div class="object-card">
+        <div class="object-card-top" style="background:#991B1B"></div>
+        <div class="object-card-body">
+          <div class="obj-name">Credit Exception</div>
+          <div class="obj-desc">Policy override governance. Written justification required. Formal approval. Permanently logged. 5 exception types.</div>
+          <div class="obj-fields">14 fields · Custom</div>
+        </div>
+      </div>
+      <div class="object-card">
+        <div class="object-card-top" style="background:#334155"></div>
+        <div class="object-card-body">
+          <div class="obj-name">Credit Committee Meeting</div>
+          <div class="obj-desc">Formal voting record. Vote counts, quorum tracking. Approval Percentage auto-calculates. Committee Deal Stamp flow.</div>
+          <div class="obj-fields">13 fields · Custom</div>
+        </div>
+      </div>
+      <div class="object-card">
+        <div class="object-card-top" style="background:#334155"></div>
+        <div class="object-card-body">
+          <div class="obj-name">Audit Log</div>
+          <div class="obj-desc">Immutable change log. Every stage change, breach, exception, document event — who, what, when, old and new value.</div>
+          <div class="obj-fields">13 fields · Custom</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 4: FLOWS ── -->
+  <section class="section" id="flows">
+    <div class="section-header">
+      <div class="section-num" style="background:var(--orange)">4</div>
+      <div>
+        <h2>Flow Inventory</h2>
+        <p>27+ flows organized by category — all active in Developer Edition org</p>
+      </div>
+    </div>
+
+    <!-- Stage Gates -->
+    <div class="flow-category">
+      <div class="flow-cat-header" style="background:#991B1B">Stage Gate Flows (3) — Block invalid stage transitions</div>
+      <div class="flow-rows">
+        <div class="flow-row"><span class="flow-name">Block Underwriting Without Credit Facility V2</span><span class="flow-obj">Financing Package</span><span class="flow-trigger">Stage = Underwriting</span></div>
+        <div class="flow-row"><span class="flow-name">Block Credit Review Without Credit Memo V2</span><span class="flow-obj">Financing Package</span><span class="flow-trigger">Stage = Credit Review</span></div>
+        <div class="flow-row"><span class="flow-name">Doc Checklist Gate V1</span><span class="flow-obj">Financing Package</span><span class="flow-trigger">Before Save</span></div>
+      </div>
+    </div>
+
+    <!-- Task Creation -->
+    <div class="flow-category">
+      <div class="flow-cat-header" style="background:#14532D">Task Creation Flows (3) — Auto-create work assignments</div>
+      <div class="flow-rows">
+        <div class="flow-row"><span class="flow-name">Create Underwriting Tasks V2</span><span class="flow-obj">Financing Package</span><span class="flow-trigger">Stage = Underwriting</span></div>
+        <div class="flow-row"><span class="flow-name">Create Credit Review Tasks V2</span><span class="flow-obj">Financing Package</span><span class="flow-trigger">Stage = Credit Review</span></div>
+        <div class="flow-row"><span class="flow-name">Create Approval Tasks V1</span><span class="flow-obj">Financing Package</span><span class="flow-trigger">Stage = Approved</span></div>
+      </div>
+    </div>
+
+    <!-- Currency Cascade -->
+    <div class="flow-category">
+      <div class="flow-cat-header" style="background:#0E7490">Currency Cascade Flows (5) — Zero manual currency selection</div>
+      <div class="flow-rows">
+        <div class="flow-row"><span class="flow-name">Set Account Currency from Primary Market V1</span><span class="flow-obj">Account</span><span class="flow-trigger">Primary Market changed</span></div>
+        <div class="flow-row"><span class="flow-name">Set Opportunity Currency from Account V1</span><span class="flow-obj">Opportunity</span><span class="flow-trigger">Record Created</span></div>
+        <div class="flow-row"><span class="flow-name">Create Financing Package from Approved Opportunity V1</span><span class="flow-obj">Opportunity</span><span class="flow-trigger">Stage = Approved</span></div>
+        <div class="flow-row"><span class="flow-name">Set Credit Facility Currency from Financing Package V1</span><span class="flow-obj">Credit Facility</span><span class="flow-trigger">Record Created</span></div>
+        <div class="flow-row"><span class="flow-name">Set Collateral Currency from Financing Package V1</span><span class="flow-obj">Collateral</span><span class="flow-trigger">Record Created</span></div>
+      </div>
+    </div>
+
+    <!-- Exposure & Covenant -->
+    <div class="flow-category">
+      <div class="flow-cat-header" style="background:#C8920A">Exposure &amp; Covenant Flows (6) — Governance monitoring</div>
+      <div class="flow-rows">
+        <div class="flow-row"><span class="flow-name">Exposure Rollup to Account V2</span><span class="flow-obj">Financing Package</span><span class="flow-trigger">Created or Updated</span></div>
+        <div class="flow-row"><span class="flow-name">Exposure Rollup on Package Delete V1</span><span class="flow-obj">Financing Package</span><span class="flow-trigger">Before Delete</span></div>
+        <div class="flow-row"><span class="flow-name">Covenant Real Time Breach Check V1</span><span class="flow-obj">Covenant</span><span class="flow-trigger">Before Save · auto-sets Status</span></div>
+        <div class="flow-row"><span class="flow-name">Covenant Breach Monitor V1</span><span class="flow-obj">Covenant</span><span class="flow-trigger">Scheduled · Daily 2AM</span></div>
+        <div class="flow-row"><span class="flow-name">Overdue Covenant Alert V1</span><span class="flow-obj">Covenant</span><span class="flow-trigger">Scheduled · Daily 6AM</span></div>
+        <div class="flow-row"><span class="flow-name">Expiring Document Alert V1</span><span class="flow-obj">Loan Document</span><span class="flow-trigger">Scheduled · Daily 6AM</span></div>
+      </div>
+    </div>
+
+    <!-- Audit Logs -->
+    <div class="flow-category">
+      <div class="flow-cat-header" style="background:#334155">Audit Log Flows (5) — Immutable change tracking</div>
+      <div class="flow-rows">
+        <div class="flow-row"><span class="flow-name">Audit Log Stage Change Flow V1</span><span class="flow-obj">Financing Package</span><span class="flow-trigger">Stage changed</span></div>
+        <div class="flow-row"><span class="flow-name">Audit Log Exception Status Change V1</span><span class="flow-obj">Credit Exception</span><span class="flow-trigger">Status changed</span></div>
+        <div class="flow-row"><span class="flow-name">Audit Log Covenant Status Change V1</span><span class="flow-obj">Covenant</span><span class="flow-trigger">Status changed</span></div>
+        <div class="flow-row"><span class="flow-name">Audit Log Document Status Change V1</span><span class="flow-obj">Loan Document</span><span class="flow-trigger">Status changed</span></div>
+        <div class="flow-row"><span class="flow-name">CF360 Regulatory Audit Log Flow V1</span><span class="flow-obj">Financing Package</span><span class="flow-trigger">Stage = Booked</span></div>
+      </div>
+    </div>
+
+    <!-- Integrations -->
+    <div class="flow-category">
+      <div class="flow-cat-header" style="background:#1A56DB">Integration &amp; Notification Flows (4) — Production-ready logic</div>
+      <div class="flow-rows">
+        <div class="flow-row"><span class="flow-name">CF360 SMS Approval Notification Flow V1</span><span class="flow-obj">Financing Package</span><span class="flow-trigger">Stage = Approved</span></div>
+        <div class="flow-row"><span class="flow-name">CF360 Document Request Notification Flow</span><span class="flow-obj">Loan Document</span><span class="flow-trigger">Status = Required</span></div>
+        <div class="flow-row"><span class="flow-name">CF360 Credit Bureau Risk Profile Update V1</span><span class="flow-obj">Financing Package</span><span class="flow-trigger">Stage = Credit Review</span></div>
+        <div class="flow-row"><span class="flow-name">Committee Deal Stamp Flow V1</span><span class="flow-obj">Credit Committee</span><span class="flow-trigger">Resolution set</span></div>
+      </div>
+    </div>
+
+    <!-- Layer 7 -->
+    <div class="flow-category">
+      <div class="flow-cat-header" style="background:#7C3AED">Layer 7 — Advanced Monitoring Flows (3)</div>
+      <div class="flow-rows">
+        <div class="flow-row"><span class="flow-name">CF360 Covenant Breach Alert Flow</span><span class="flow-obj">Covenant</span><span class="flow-trigger">Status = Breached</span></div>
+        <div class="flow-row"><span class="flow-name">CF360 Loan Maturity Warning Flow</span><span class="flow-obj">Credit Facility</span><span class="flow-trigger">Scheduled · Daily 6AM</span></div>
+        <div class="flow-row"><span class="flow-name">CF360 Portfolio Health Score Flow</span><span class="flow-obj">Financing Package</span><span class="flow-trigger">Scheduled · Weekly Mon 7AM</span></div>
+      </div>
+    </div>
+
+    <!-- Experience Cloud -->
+    <div class="flow-category">
+      <div class="flow-cat-header" style="background:#0284C7">Experience Cloud Screen Flows (2) — Layer 5</div>
+      <div class="flow-rows">
+        <div class="flow-row"><span class="flow-name">CF360 Document Upload Flow</span><span class="flow-obj">Experience Cloud Portal</span><span class="flow-trigger">Screen Flow · 3 screens</span></div>
+        <div class="flow-row"><span class="flow-name">CF360 Loan Status Check Flow</span><span class="flow-obj">Experience Cloud Portal</span><span class="flow-trigger">Screen Flow · 2 screens</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 5: APPROVAL PROCESSES ── -->
+  <section class="section" id="approvals">
+    <div class="section-header">
+      <div class="section-num" style="background:var(--purple)">5</div>
+      <div>
+        <h2>Approval Processes</h2>
+        <p>3 processes with automatic routing based on deal size and committee flag</p>
+      </div>
+    </div>
+
+    <div class="diagram-card">
+      <div class="diagram-card-header">
+        <h3>Financing Package Approval — 3-Level Routing</h3>
+        <span class="tag" style="background:var(--lblue);color:var(--blue)">Entry: Stage = Credit Review</span>
+      </div>
+      <div class="diagram-card-body">
+        <div class="approval-flow">
+          <div class="ap-box" style="background:#DCFCE7;border-color:#14532D">
+            <div class="ap-level" style="color:#14532D">LEVEL 1</div>
+            <div class="ap-name">Ngozi Adeyemi</div>
+            <div class="ap-role">Senior Credit Officer</div>
+            <div class="ap-limit" style="color:#14532D">≤ $500,000<br>Committee = False</div>
+          </div>
+          <div class="ap-arrow">→</div>
+          <div class="ap-box" style="background:var(--lblue);border-color:var(--blue)">
+            <div class="ap-level" style="color:var(--blue)">LEVEL 2</div>
+            <div class="ap-name">Kwame Asante</div>
+            <div class="ap-role">Chief Risk Officer</div>
+            <div class="ap-limit" style="color:var(--blue)">$500K – $2M<br>Committee = False</div>
+          </div>
+          <div class="ap-arrow">→</div>
+          <div class="ap-box" style="background:var(--lgold);border-color:var(--gold)">
+            <div class="ap-level" style="color:var(--gold)">LEVEL 3</div>
+            <div class="ap-name">Fatima Diallo</div>
+            <div class="ap-role">Chief Financial Officer</div>
+            <div class="ap-limit" style="color:var(--gold)">&gt; $2M or<br>Committee = True</div>
+          </div>
+        </div>
+        <p style="font-size:12px;color:var(--muted);margin-top:8px">Committee Deal = True bypasses Levels 1 and 2 and routes directly to Level 3 regardless of amount.</p>
+      </div>
+    </div>
+
+    <div class="diagram-card">
+      <div class="diagram-card-header">
+        <h3>Credit Memo Approval — 3 Levels</h3>
+        <span class="tag" style="background:var(--lgreen);color:var(--green)">Entry: Memo Status = Submitted → Locks memo</span>
+      </div>
+      <div class="diagram-card-body">
+        <div class="approval-flow">
+          <div class="ap-box" style="background:var(--gray);border-color:var(--line)">
+            <div class="ap-level" style="color:var(--muted)">SUBMIT</div>
+            <div class="ap-name">Credit Officer</div>
+            <div class="ap-role">Submits memo</div>
+            <div class="ap-limit" style="color:var(--muted)">Memo locks</div>
+          </div>
+          <div class="ap-arrow">→</div>
+          <div class="ap-box" style="background:#DCFCE7;border-color:#14532D">
+            <div class="ap-level" style="color:#14532D">LEVEL 1</div>
+            <div class="ap-name">Credit Officer</div>
+            <div class="ap-role">Assigned approver</div>
+          </div>
+          <div class="ap-arrow">→</div>
+          <div class="ap-box" style="background:var(--lblue);border-color:var(--blue)">
+            <div class="ap-level" style="color:var(--blue)">LEVEL 2</div>
+            <div class="ap-name">Ngozi Adeyemi</div>
+            <div class="ap-role">Senior Credit Officer</div>
+          </div>
+          <div class="ap-arrow">→</div>
+          <div class="ap-box" style="background:var(--lgold);border-color:var(--gold)">
+            <div class="ap-level" style="color:var(--gold)">LEVEL 3</div>
+            <div class="ap-name">Fatima Diallo</div>
+            <div class="ap-role">Chief Financial Officer</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="diagram-card">
+      <div class="diagram-card-header">
+        <h3>Credit Exception Approval — Single Level</h3>
+        <span class="tag" style="background:var(--lred);color:var(--red)">Entry: Status = Draft → Submit for Approval</span>
+      </div>
+      <div class="diagram-card-body">
+        <div class="approval-flow">
+          <div class="ap-box" style="background:var(--gray);border-color:var(--line)">
+            <div class="ap-level" style="color:var(--muted)">RAISE</div>
+            <div class="ap-name">Credit Officer</div>
+            <div class="ap-role">Written justification</div>
+          </div>
+          <div class="ap-arrow">→</div>
+          <div class="ap-box" style="background:var(--lred);border-color:var(--red)">
+            <div class="ap-level" style="color:var(--red)">SINGLE LEVEL</div>
+            <div class="ap-name">Therence Ngoa</div>
+            <div class="ap-role">System Administrator</div>
+            <div class="ap-limit" style="color:var(--red)">All exception types</div>
+          </div>
+          <div class="ap-arrow">→</div>
+          <div class="ap-box" style="background:#DCFCE7;border-color:#14532D">
+            <div class="ap-level" style="color:#14532D">APPROVED</div>
+            <div class="ap-name">Exception flag set</div>
+            <div class="ap-role">Auto-checks Exposure_<br>Exception_Approved__c</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 6: VALIDATION RULES ── -->
+  <section class="section" id="rules">
+    <div class="section-header">
+      <div class="section-num" style="background:var(--red)">6</div>
+      <div>
+        <h2>Validation Rules</h2>
+        <p>8 rules enforcing BCEAO/CEMAC compliance and data integrity</p>
+      </div>
+    </div>
+
+    <div class="vr-grid">
+      <div class="vr-header">Rule Name</div>
+      <div class="vr-header">Object</div>
+      <div class="vr-header">Why It Exists</div>
+
+      <div class="vr-cell name">Require Tax ID when KYC = Verified</div>
+      <div class="vr-cell obj">Account</div>
+      <div class="vr-cell why">BCEAO/CEMAC AML — no identity verification without official Tax ID on file</div>
+
+      <div class="vr-cell name">Exposure Limit Breach Check</div>
+      <div class="vr-cell obj">Financing Package</div>
+      <div class="vr-cell why">Single-borrower concentration risk rule — blocks exceeding Max Exposure Limit unless exception approved</div>
+
+      <div class="vr-cell name">Require Total Amount</div>
+      <div class="vr-cell obj">Financing Package</div>
+      <div class="vr-cell why">Prevents incomplete deal records entering the approval workflow</div>
+
+      <div class="vr-cell name">Require Approval Date when Approved</div>
+      <div class="vr-cell obj">Financing Package</div>
+      <div class="vr-cell why">Every approved deal must have a formal approval date for audit purposes</div>
+
+      <div class="vr-cell name">Require Expiry Date when Approved</div>
+      <div class="vr-cell obj">Financing Package</div>
+      <div class="vr-cell why">Defines the commitment window — deals cannot be open-ended</div>
+
+      <div class="vr-cell name">Require Opportunity when Approved</div>
+      <div class="vr-cell obj">Financing Package</div>
+      <div class="vr-cell why">Ensures every deal traces back to its original loan request</div>
+
+      <div class="vr-cell name">Require Breach Date when Breached</div>
+      <div class="vr-cell obj">Covenant</div>
+      <div class="vr-cell why">Breach date required for BCEAO/CEMAC covenant regulatory reporting</div>
+
+      <div class="vr-cell name">Outstanding Balance ≤ Loan Amount</div>
+      <div class="vr-cell obj">Credit Facility</div>
+      <div class="vr-cell why">Prevents data entry errors that would overstate borrower exposure</div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 7: CURRENCIES ── -->
+  <section class="section" id="currencies">
+    <div class="section-header">
+      <div class="section-num" style="background:var(--gold)">7</div>
+      <div>
+        <h2>Currencies &amp; Markets</h2>
+        <p>10 active currencies · 11 countries · full cascade automation</p>
+      </div>
+    </div>
+
+    <div class="currency-grid">
+      <div class="currency-card"><div class="cc">USD</div><div class="cn">U.S. Dollar</div><div class="cr">1.00 · 2 decimals · Corporate / international</div></div>
+      <div class="currency-card"><div class="cc">XOF</div><div class="cn">CFA Franc BCEAO</div><div class="cr">564 · 0 decimals · Senegal, Ivory Coast, Mali, Burkina Faso</div></div>
+      <div class="currency-card"><div class="cc">XAF</div><div class="cn">CFA Franc BEAC</div><div class="cr">600 · 0 decimals · Cameroon, Congo, Gabon, Chad</div></div>
+      <div class="currency-card"><div class="cc">NGN</div><div class="cn">Nigerian Naira</div><div class="cr">1,370 · 2 decimals · Nigeria</div></div>
+      <div class="currency-card"><div class="cc">GHS</div><div class="cn">Ghanaian Cedi</div><div class="cr">11.40 · 2 decimals · Ghana</div></div>
+      <div class="currency-card"><div class="cc">LRD</div><div class="cn">Liberian Dollar</div><div class="cr">183 · 2 decimals · Liberia</div></div>
+      <div class="currency-card"><div class="cc">KES</div><div class="cn">Kenyan Shilling</div><div class="cr">129 · 2 decimals · Kenya</div></div>
+      <div class="currency-card"><div class="cc">RWF</div><div class="cn">Rwandan Franc</div><div class="cr">1,400 · 0 decimals · Rwanda</div></div>
+      <div class="currency-card"><div class="cc">CDF</div><div class="cn">Franc Congolais</div><div class="cr">2,800 · 2 decimals · Congo (DRC)</div></div>
+      <div class="currency-card"><div class="cc">EUR</div><div class="cn">Euro</div><div class="cr">0.92 · 2 decimals · France / international</div></div>
+    </div>
+
+    <div class="diagram-card">
+      <div class="diagram-card-header">
+        <h3>Currency Cascade — 5-Flow Chain</h3>
+        <span class="tag" style="background:var(--lteal);color:var(--teal)">Zero manual selection</span>
+      </div>
+      <div class="diagram-card-body">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 0">
+          <div style="background:var(--lteal);border:1px solid var(--teal);border-radius:8px;padding:10px 14px;text-align:center;min-width:120px">
+            <div style="font-size:12px;font-weight:600;color:var(--teal)">Account</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:3px">Primary Market set</div>
+          </div>
+          <div style="color:var(--teal);font-size:18px;font-weight:300">→</div>
+          <div style="background:var(--lteal);border:1px solid var(--teal);border-radius:8px;padding:10px 14px;text-align:center;min-width:120px">
+            <div style="font-size:12px;font-weight:600;color:var(--teal)">Opportunity</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:3px">On creation</div>
+          </div>
+          <div style="color:var(--teal);font-size:18px;font-weight:300">→</div>
+          <div style="background:var(--lgold);border:1px solid var(--gold);border-radius:8px;padding:10px 14px;text-align:center;min-width:130px">
+            <div style="font-size:12px;font-weight:600;color:var(--gold)">Financing Package</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:3px">On Opp. Approved</div>
+          </div>
+          <div style="color:var(--teal);font-size:18px;font-weight:300">→</div>
+          <div style="background:var(--lteal);border:1px solid var(--teal);border-radius:8px;padding:10px 14px;text-align:center;min-width:120px">
+            <div style="font-size:12px;font-weight:600;color:var(--teal)">Credit Facility</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:3px">On creation</div>
+          </div>
+          <div style="color:var(--teal);font-size:18px;font-weight:300">→</div>
+          <div style="background:var(--lgreen);border:1px solid var(--green);border-radius:8px;padding:10px 14px;text-align:center;min-width:120px">
+            <div style="font-size:12px;font-weight:600;color:var(--green)">Collateral</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:3px">On creation</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 8: ROLES ── -->
+  <section class="section" id="roles">
+    <div class="section-header">
+      <div class="section-num" style="background:var(--slate)">8</div>
+      <div>
+        <h2>Roles &amp; Permissions</h2>
+        <p>17 roles · 13 permission sets · 16 permission set groups</p>
+      </div>
+    </div>
+
+    <table class="cf-table">
+      <tr>
+        <th>Role</th>
+        <th>Key Capability</th>
+        <th>Approves</th>
+        <th>Cannot</th>
+      </tr>
+      <tr><td><strong>System Administrator</strong> (Therence Ngoa)</td><td>Full access to all 12 objects. Manage users, flows, approval processes.</td><td>All Credit Exceptions</td><td>Nothing</td></tr>
+      <tr><td><strong>Chief Financial Officer</strong> (Fatima Diallo)</td><td>Approve FP at Level 3. View full portfolio. Portfolio Manager Dashboard.</td><td>FP Level 3 (&gt;$2M or Committee)</td><td>Create/edit lending records</td></tr>
+      <tr><td><strong>Chief Risk Officer</strong> (Kwame Asante)</td><td>Approve FP at Level 2. Full view of all objects. Run all reports.</td><td>FP Level 2 ($500K–$2M)</td><td>Delete Accounts. No Setup.</td></tr>
+      <tr><td><strong>Senior Credit Officer</strong> (Ngozi Adeyemi)</td><td>Approve Credit Memos. Full edit on all lending objects.</td><td>FP Level 1 (≤$500K)</td><td>Approve FP above Level 2</td></tr>
+      <tr><td><strong>Credit Officer</strong> (Wanjiru Kamau)</td><td>Create FP, Memo, Facility, Collateral, Covenant, Documents. Submit memos.</td><td>Nothing — submits only</td><td>Approve own memos</td></tr>
+      <tr><td><strong>Relationship Manager</strong></td><td>Create/edit Accounts and Opportunities. Create FP in Draft/Prospect.</td><td>Nothing</td><td>Advance FP beyond Proposal. Write Credit Memos.</td></tr>
+      <tr><td><strong>Compliance Officer</strong></td><td>Set KYC Status. Verify/reject documents. Compliance Dashboard.</td><td>Nothing</td><td>Create/approve FP. Write Credit Memos.</td></tr>
+      <tr><td><strong>Portfolio Manager</strong></td><td>Monitor all FPs and Credit Facilities. Portfolio Dashboard.</td><td>Nothing</td><td>Create new deals. Approve.</td></tr>
+      <tr><td><strong>Internal Auditor</strong></td><td>Read-only access to all 12 objects. View Audit Logs.</td><td>Nothing</td><td>Create, edit, or delete any record</td></tr>
+      <tr><td><strong>Regulator View</strong></td><td>KYC status, covenant compliance, doc completeness, audit trail only.</td><td>Nothing</td><td>See Risk Scores, financial amounts, Credit Memo content</td></tr>
+      <tr><td><strong>Operations Officer</strong></td><td>Record disbursements. Update Disbursement Date and Outstanding Balance.</td><td>Nothing</td><td>Create FP. Write Credit Memos.</td></tr>
+      <tr><td><strong>Field Agent</strong></td><td>Collect borrower info in field. Create/update Accounts. Upload documents.</td><td>Nothing</td><td>Approve or submit anything. See Risk Scores.</td></tr>
+    </table>
+  </section>
+
+  <!-- ── SECTION 9: BREACH CHAIN ── -->
+  <section class="section" id="breach-chain">
+    <div class="section-header">
+      <div class="section-num" style="background:var(--teal)">9</div>
+      <div>
+        <h2>Layer 3 → Layer 7 Breach Detection Chain</h2>
+        <p>How covenant breach detection and escalation work together</p>
+      </div>
+    </div>
+
+    <div class="diagram-card">
+      <div class="diagram-card-header">
+        <h3>Complete breach detection chain — 9 steps</h3>
+        <span class="tag" style="background:var(--lteal);color:var(--teal)">Covenant_Status__c is the connector</span>
+      </div>
+      <div class="diagram-card-body">
+        <div class="chain">
+
+          <div class="chain-step">
+            <div class="chain-line">
+              <div class="chain-dot" style="background:var(--muted)"></div>
+              <div class="chain-vert"></div>
+            </div>
+            <div class="chain-content">
+              <div class="chain-title">Credit Officer updates Actual Value</div>
+              <div class="chain-sub">Covenant record · Actual_Value__c edited during quarterly review</div>
+            </div>
+          </div>
+
+          <div class="chain-step">
+            <div class="chain-line">
+              <div class="chain-dot" style="background:var(--gold)"></div>
+              <div class="chain-vert"></div>
+            </div>
+            <div class="chain-content" style="border-left:3px solid var(--gold)">
+              <div class="chain-title">Covenant Real Time Breach Check V1 fires <span class="chain-layer-badge" style="background:var(--lgold);color:var(--gold)">Layer 3</span></div>
+              <div class="chain-sub">Before-save flow · compares Actual vs Threshold · auto-sets Status = Breached or Compliant</div>
+            </div>
+          </div>
+
+          <div class="chain-step">
+            <div class="chain-line">
+              <div class="chain-dot" style="background:var(--red)"></div>
+              <div class="chain-vert"></div>
+            </div>
+            <div class="chain-content" style="border-left:3px solid var(--red)">
+              <div class="chain-title">Validation rule fires <span class="chain-layer-badge" style="background:var(--lred);color:var(--red)">Layer 3</span></div>
+              <div class="chain-sub">Require_Breach_Date_When_Breached · blocks save if Breach_Date__c is empty</div>
+            </div>
+          </div>
+
+          <div class="chain-step">
+            <div class="chain-line">
+              <div class="chain-dot" style="background:var(--teal)"></div>
+              <div class="chain-vert"></div>
+            </div>
+            <div class="chain-content" style="border-left:3px solid var(--teal);background:var(--lteal)">
+              <div class="chain-title">Record saves · Covenant_Status__c = Breached</div>
+              <div class="chain-sub">Shared connector field — Layer 3 writes to it · Layer 7 reads from it · this is the decoupling point</div>
+            </div>
+          </div>
+
+          <div class="chain-step">
+            <div class="chain-line">
+              <div class="chain-dot" style="background:var(--slate)"></div>
+              <div class="chain-vert"></div>
+            </div>
+            <div class="chain-content" style="border-left:3px solid var(--slate)">
+              <div class="chain-title">Audit Log Covenant Status Change V1 fires <span class="chain-layer-badge" style="background:var(--line);color:var(--slate)">Layer 3</span></div>
+              <div class="chain-sub">Immutable record created · old value = Compliant · new value = Breached · timestamp + triggered by</div>
+            </div>
+          </div>
+
+          <div class="chain-step">
+            <div class="chain-line">
+              <div class="chain-dot" style="background:var(--purple)"></div>
+              <div class="chain-vert"></div>
+            </div>
+            <div class="chain-content" style="border-left:3px solid var(--purple)">
+              <div class="chain-title">CF360 Covenant Breach Alert Flow fires <span class="chain-layer-badge" style="background:var(--lpurple);color:var(--purple)">Layer 7</span></div>
+              <div class="chain-sub">After-save · detects Status = Breached · creates high-priority Task + sends email to Financing Package owner</div>
+            </div>
+          </div>
+
+          <div class="chain-step">
+            <div class="chain-line">
+              <div class="chain-dot" style="background:var(--gold)"></div>
+              <div class="chain-vert"></div>
+            </div>
+            <div class="chain-content" style="border-left:3px solid var(--gold)">
+              <div class="chain-title">Covenant Breach Monitor V1 · 2:00 AM <span class="chain-layer-badge" style="background:var(--lgold);color:var(--gold)">Layer 3</span></div>
+              <div class="chain-sub">Daily scheduled scan · stamps Breach Date on any Breached covenant missing it · safety net</div>
+            </div>
+          </div>
+
+          <div class="chain-step">
+            <div class="chain-line">
+              <div class="chain-dot" style="background:var(--gold)"></div>
+              <div class="chain-vert"></div>
+            </div>
+            <div class="chain-content" style="border-left:3px solid var(--gold)">
+              <div class="chain-title">Overdue Covenant Alert V1 · 6:00 AM <span class="chain-layer-badge" style="background:var(--lgold);color:var(--gold)">Layer 3</span></div>
+              <div class="chain-sub">Daily scheduled · sends follow-up alert if Next Review Date is past due and breach unresolved</div>
+            </div>
+          </div>
+
+          <div class="chain-step">
+            <div class="chain-line">
+              <div class="chain-dot" style="background:var(--purple)"></div>
+            </div>
+            <div class="chain-content" style="border-left:3px solid var(--purple)">
+              <div class="chain-title">Portfolio Health Score Flow · Monday 7:00 AM <span class="chain-layer-badge" style="background:var(--lpurple);color:var(--purple)">Layer 7</span></div>
+              <div class="chain-sub">Weekly scan · flags the deal as a portfolio risk signal · included in Monday morning health summary</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 10: RISK SCORE ── -->
+  <section class="section" id="risk-score">
+    <div class="section-header">
+      <div class="section-num" style="background:var(--blue)">10</div>
+      <div>
+        <h2>Risk Score Formula</h2>
+        <p>5 dimensions · 100 points · auto-calculates on every save · drives approval routing</p>
+      </div>
+    </div>
+
+    <table class="cf-table">
+      <tr>
+        <th>Dimension</th>
+        <th>Max Points</th>
+        <th>Scoring Logic</th>
+        <th>Note</th>
+      </tr>
+      <tr>
+        <td><strong>KYC Status</strong></td>
+        <td style="color:var(--blue);font-weight:700">20 pts</td>
+        <td>Verified=20 · Exempt=15 · Pending=8 · Failed=0</td>
+        <td>Reduced from 25pts in V1</td>
+      </tr>
+      <tr>
+        <td><strong>Risk Level</strong></td>
+        <td style="color:var(--blue);font-weight:700">30 pts</td>
+        <td>Low=30 · Medium=20 · High=10 · Very High=0</td>
+        <td>Highest weight — set by Credit Officer</td>
+      </tr>
+      <tr>
+        <td><strong>Sector</strong></td>
+        <td style="color:var(--blue);font-weight:700">15 pts</td>
+        <td>Treasury=15 · Trade &amp; Commerce=12 · Agriculture=10 · Informal/Microfinance=6 · Other=3</td>
+        <td>Values renamed May 2026</td>
+      </tr>
+      <tr>
+        <td><strong>Deal Size</strong></td>
+        <td style="color:var(--blue);font-weight:700">15 pts</td>
+        <td>≤$10K=15 · ≤$50K=12 · ≤$100K=8 · &gt;$100K=4</td>
+        <td>Based on Total Amount field</td>
+      </tr>
+      <tr>
+        <td><strong>Customer Type</strong></td>
+        <td style="color:var(--blue);font-weight:700">20 pts</td>
+        <td>Government=20 · Financial Institution=18 · Corporate=16 · Cooperative=14 · SME=12 · Business=10 · Individual=8 · Microfinance=6</td>
+        <td>NEW — added May 2026</td>
+      </tr>
+      <tr style="background:var(--lgreen)">
+        <td><strong>Total</strong></td>
+        <td style="color:var(--green);font-weight:700">100 pts</td>
+        <td>80–100: Excellent · 60–79: Good · 40–59: Moderate · 20–39: High Risk · 0–19: Very High Risk</td>
+        <td>Higher score = lower risk</td>
+      </tr>
+    </table>
+
+    <div class="diagram-card">
+      <div class="diagram-card-header">
+        <h3>Suggested Risk Level Formula — Alternative Credit Scoring</h3>
+        <span class="tag" style="background:var(--lteal);color:var(--teal)">Read-only · auto-calculates · informal sector borrowers</span>
+      </div>
+      <div class="diagram-card-body">
+        <table class="cf-table">
+          <tr><th>Input Combination</th><th>Suggested Output</th></tr>
+          <tr><td>Mobile Money = High + Utility = Excellent + Market Member = ✓</td><td style="color:var(--green);font-weight:600">Suggested: LOW RISK</td></tr>
+          <tr><td>Mobile Money = High + Utility = Good + Market Member = ✗</td><td style="color:#047857;font-weight:600">Suggested: LOW-MEDIUM RISK</td></tr>
+          <tr><td>Mobile Money = Medium + Utility = Fair + Any</td><td style="color:var(--gold);font-weight:600">Suggested: MEDIUM RISK</td></tr>
+          <tr><td>Mobile Money = Low + Any + Any</td><td style="color:var(--orange);font-weight:600">Suggested: HIGH RISK</td></tr>
+          <tr><td>Mobile Money = None + Utility = No History + Any</td><td style="color:var(--red);font-weight:600">Suggested: VERY HIGH RISK</td></tr>
+          <tr><td>Informal Sector = unchecked (formal borrower)</td><td style="color:var(--muted);font-weight:600">N/A — Use Risk Level field</td></tr>
+        </table>
+        <p style="font-size:12px;color:var(--muted);margin-top:8px">Credit Officer reads the suggestion and sets the official Risk Level based on professional judgment. The suggestion is read-only and never feeds directly into the Risk Score.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ══ FOOTER ════════════════════════════════════════════════════════ -->
+<footer class="site-footer">
+  <p><strong>CoreFinance360 (CF360)</strong> &nbsp;·&nbsp; Built by Therence Ngoa &nbsp;·&nbsp; May 2026</p>
+  <p style="margin-top:6px">Salesforce Developer Edition &nbsp;·&nbsp; Org ID: 00DNS00000r86g1 &nbsp;·&nbsp; BCEAO/CEMAC African Banking Platform</p>
+  <p style="margin-top:6px">7 Layers &nbsp;·&nbsp; 12 Objects &nbsp;·&nbsp; 27+ Flows &nbsp;·&nbsp; 8 Validation Rules &nbsp;·&nbsp; 3 Approval Processes &nbsp;·&nbsp; 10 Currencies &nbsp;·&nbsp; 17 Roles</p>
+</footer>
+
+</body>
+</html>
