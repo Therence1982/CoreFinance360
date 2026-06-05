@@ -42,6 +42,16 @@ The platform is architected on **nCino design principles** — using a central d
 
 ---
 
+## 🗺️ Platform Architecture Diagram
+
+![CoreFinance360 – 7-Layer Enterprise Banking Architecture](02-Architecture/CF360_Architecture_Diagram_7-Layer-Platform.png)
+
+> *Complete nCino-Style Loan Origination & Credit Management Platform —
+> 12 Objects · 27+ Flows · 10 Currencies · 17 Roles ·
+> 3 Approval Levels · 11 Countries (BCEAO, CEMAC & Beyond)*
+
+---
+
 ## 🏗️ 7-Layer Platform Architecture
 
 | Layer | Name | Key Components | Status |
