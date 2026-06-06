@@ -7,7 +7,7 @@
 
 ## 📋 What This Folder Contains
 
-This folder provides direct visual evidence of the CoreFinance360 platform in operation — capturing the data model, automation architecture, security design, multi-currency configuration, live transaction data, dashboards, and the borrower portal.
+This folder provides direct visual evidence of the CoreFinance360 platform in operation — capturing the data model, automation architecture, security design, multi-currency configuration, live transaction data, dashboards, and integration setup.
 
 All screenshots were captured from the live org. No mockups. No staging data.
 
@@ -24,8 +24,7 @@ All screenshots were captured from the live org. No mockups. No staging data.
 ├── 05-Multi-Currency/              # 10-currency setup (XOF, XAF, NGN, GHS, KES, and more)
 ├── 06-Live-Data/                   # Active records, populated deal data, approval history
 ├── 07-Dashboards-Reports/          # Portfolio dashboards, analytical reports with live data
-├── 08-Experience-Cloud/            # CoreFinance Client Portal builder and screen flow embed
-└── 09-Integrations/                # Named Credentials for simulated SMS and credit bureau
+└── 09-Integrations/                # Named Credentials for SMS gateway integration
 ```
 
 ---
@@ -36,10 +35,11 @@ All screenshots were captured from the live org. No mockups. No staging data.
 
 | File | What It Shows |
 |---|---|
-| `SS-01_Object-Manager-Overview.png` | All 12 custom objects in Object Manager with API names |
-| `SS-02_Financing-Package-Fields.png` | Full custom field list on the Financing Package object (180+ fields platform-wide) |
-| `SS-03_Schema-Builder-Relationships.png` | Entity relationship diagram — Financing Package, Credit Facility, Borrowing Structure, Collateral, Covenant |
-| `SS-04_Role-Hierarchy.png` | Full 17-role hierarchy expanded — from System Admin to Field Agent and Regulator View |
+| `SS-01_Object-Manager-Overview.png` | All 10 custom objects in Object Manager — API names, descriptions, deployed status |
+| `SS-02a_Financing-Package-Fields.png` | Full field list on Financing Package — Risk Score formula, Stage, Currency, Total Amount |
+| `SS-02b_Credit-Facility-Fields.png` | Full field list on Credit Facility — Loan Amount, Interest Rate, Maturity Date, Master-Detail relationship |
+| `SS-03_Schema-Builder-Relationships.png` | Entity relationship diagram — Financing Package, Credit Facility, Borrowing Structure, Collateral, Covenant, Loan Document with relationship lines |
+| `SS-04_Role-Hierarchy.png` | Full 18-role hierarchy expanded — CoreFinance360 Executive down to Mobile Money Agent, Microfinance Officer, Regulator View |
 
 ---
 
@@ -47,11 +47,20 @@ All screenshots were captured from the live org. No mockups. No staging data.
 
 | File | What It Shows |
 |---|---|
-| `SS-05_Flow-Manager-All-Flows.png` | All 27+ flows listed with Type and Active status |
-| `SS-06_Currency-Cascade-Flow-Canvas.png` | Canvas view of the currency cascade flow — 5-flow chain that auto-sets currency on all linked objects |
-| `SS-07_Stage-Gate-Flow-Decision-Logic.png` | Decision element in the Stage Gate flow — branch conditions for each Financing Package stage transition |
-| `SS-08_Approval-Process-3-Level-Routing.png` | 3-level approval process on Financing Package (Ngozi ≤$500K · Kwame $500K–$2M · Fatima >$2M) |
-| `SS-09_Covenant-Breach-Alert-Flow.png` | Covenant Breach Alert flow canvas — trigger on `Covenant_Status__c = Breached`, Task creation + email action |
+| `SS-05_Flow-Manager-All-Flows.png` | All 50+ flows listed with Process Type and Active status |
+| `SS-06a_Currency-Cascade-Collateral.png` | Currency cascade — Collateral inherits currency from Financing Package automatically |
+| `SS-06b_Currency-Cascade-Credit-Facility.png` | Currency cascade — Credit Facility inherits currency from Financing Package |
+| `SS-06c_Currency-Cascade-Opportunity.png` | Currency cascade — Opportunity inherits currency from Account |
+| `SS-06d_Currency-Cascade-Account.png` | Currency cascade — selecting a country auto-sets currency on Account (Fast Field Updates) |
+| `SS-07_Stage-Gate-Block-Underwriting.png` | Stage gate — Decision element blocking Underwriting without Credit Facility |
+| `SS-07b_Block-Credit-Review-Without-Credit-Memo.png` | Stage gate — Decision element blocking Credit Review without Credit Memo |
+| `SS-07c_Create-Underwriting-Tasks-Flow.png` | 3 tasks auto-created + email alert when deal enters Underwriting stage |
+| `SS-07d_Create-Credit-Review-Tasks-Flow.png` | 2 tasks auto-created + email alert when deal enters Credit Review stage |
+| `SS-07e_Create-Approval-Tasks-Flow.png` | 2 approval tasks auto-created when deal enters approval stage |
+| `SS-08_Approval-Process-3-Level-Routing.png` | Financing Package approval — 3 levels: Credit Officer ≤$500K · CRO $500K–$2M · CFO >$2M |
+| `SS-08b_Credit-Memo-Approval-Process.png` | Credit Memo approval — 3-level routing with criteria and assigned approvers |
+| `SS-08c_Credit-Exception-Approval-Process.png` | Credit Exception approval — single level review by System Administrator |
+| `SS-09_Covenant-Breach-Alert-Flow.png` | Covenant Breach Alert — triggered on Covenant update, creates task + sends email |
 
 ---
 
@@ -59,8 +68,11 @@ All screenshots were captured from the live org. No mockups. No staging data.
 
 | File | What It Shows |
 |---|---|
-| `SS-10_Validation-Rules-List.png` | All 8 active validation rules on the Financing Package object |
-| `SS-11_Validation-Rule-Formula-Detail.png` | Formula editor view of the KYC compliance or exposure limit rule |
+| `SS-10_Validation-Rules-List.png` | All 5 validation rules on Financing Package — bilingual error messages (EN + FR) |
+| `SS-10b_Account-Validation-Rule-KYC.png` | Account KYC rule — Tax ID required before KYC Status can be set to Verified |
+| `SS-10c_Covenant-Validation-Rules.png` | Covenant rule — Breach Date required when Covenant Status is set to Breached |
+| `SS-10e_Credit-Facility-Validation-Rules.png` | Credit Facility rule — Outstanding Balance cannot exceed Loan Amount (bilingual) |
+| `SS-11_Validation-Rule-Formula-Detail.png` | Exposure Limit Breach Check formula — AND logic with PRIORVALUE, cross-object reference, BCEAO/CEMAC compliance |
 
 ---
 
@@ -68,8 +80,9 @@ All screenshots were captured from the live org. No mockups. No staging data.
 
 | File | What It Shows |
 |---|---|
-| `SS-12_Permission-Sets-List.png` | All 13 permission sets listed (granular access control by role) |
-| `SS-13_Permission-Set-Object-Settings.png` | Object-level CRUD configuration inside one permission set (e.g., CF360 Senior Credit Officer) |
+| `SS-12_Permission-Sets-List.png` | All 13 CF360 permission sets — Admin, Approval Levels 1/2/3, Auditor, Core Lending, Credit Analysis, Disbursement, Document Management, KYC Management, Portfolio Monitoring, Regulator |
+| `SS-12b_Permission-Set-Groups-List.png` | All 16 CF360 permission set groups — one per role from Branch Manager to System Administrator |
+| `SS-13_Permission-Set-Object-Settings.png` | Object-level CRUD access configuration inside CF360 Credit Analysis permission set |
 
 ---
 
@@ -77,7 +90,7 @@ All screenshots were captured from the live org. No mockups. No staging data.
 
 | File | What It Shows |
 |---|---|
-| `SS-14_Currency-Settings-10-Currencies.png` | All 10 active currencies: USD, XOF, XAF, NGN, GHS, LRD, KES, RWF, CDF, EUR |
+| `SS-14_Currency-Settings-10-Currencies.png` | All 10 active currencies with conversion rates — USD, XOF, XAF, NGN, GHS, LRD, KES, RWF, CDF, EUR |
 
 ---
 
@@ -85,10 +98,10 @@ All screenshots were captured from the live org. No mockups. No staging data.
 
 | File | What It Shows |
 |---|---|
-| `SS-15_Financing-Package-List-View.png` | Active deal pipeline — multiple records across countries, stages, and currencies |
-| `SS-16_Financing-Package-Record-Detail.png` | Fully populated deal record — all field sections, related lists (Credit Facility, Collateral, Covenant, Loan Document, Credit Memo) |
-| `SS-17_Risk-Score-Formula-Live.png` | Risk Score formula result on a live record — 5-dimension score (KYC 20 + Risk Level 30 + Sector 15 + Deal Size 15 + Customer Type 20) |
-| `SS-18_Approval-History-On-Record.png` | Approval History related list on a Financing Package — steps, approvers, and status |
+| `SS-16_Financing-Package-Record-Detail.png` | Live FP-0025 record — Stage path bar, Account, Total Amount with USD conversion, Risk Score calculating, Currency, Purpose |
+| `SS-16b_Financing-Package-Related-Lists.png` | All related lists on a Financing Package — Credit Facility, Borrowing Structure, Collateral, Loan Document, Credit Memos, Covenants, Credit Exceptions, Credit Committee Meetings, Audit Logs, Approval History |
+| `SS-17_Risk-Score-Formula-Live.png` | Risk Score tooltip on live record showing scoring legend — 80-100 Excellent · 60-79 Good · 40-59 Moderate · 20-39 High Risk · 0-19 Very High Risk |
+| `SS-18_Approval-History-On-Record.png` | Approval History related list on a Financing Package record |
 
 ---
 
@@ -96,25 +109,21 @@ All screenshots were captured from the live org. No mockups. No staging data.
 
 | File | What It Shows |
 |---|---|
-| `SS-19_Portfolio-Dashboard-Overview.png` | CF360 Portfolio Dashboard — deal pipeline, risk distribution, approval status, and key metrics |
-| `SS-20_Report-With-Live-Data.png` | Analytical report running with live data — multi-column, grouped, cross-object |
+| `SS-19_Portfolio-Dashboard-Overview.png` | Portfolio Manager Dashboard — Pipeline by Stage, Active Packages by Account, Covenant Compliance, KYC Status charts |
+| `SS-19a_Dashboard-List-View.png` | All 4 CF360 dashboards listed — Portfolio Manager, Credit Officer, Compliance, Regulator |
+| `SS-19b_Credit-Officer-Dashboard.png` | Credit Officer Dashboard — Breached Covenants, Credit Exception Register, Audit Log by Event Type |
+| `SS-19c_Compliance-Dashboard.png` | Compliance Dashboard — Expiring Documents, KYC Status, Covenant Compliance, Audit Log |
+| `SS-20a_Reports-List-View.png` | All 10 CF360 reports listed with descriptions — Covenant Compliance, Pipeline by Stage, KYC Status, Approval Pipeline, and more |
+| `SS-20_Report-With-Live-Data.png` | Analytical report running with live data |
 
 ---
 
-### 08 · Experience Cloud
+### 08 · Integrations
 
 | File | What It Shows |
 |---|---|
-| `SS-21_Experience-Cloud-Portal-Builder.png` | CoreFinance Client Portal home page in Experience Builder |
-| `SS-22_Document-Upload-Flow-Embedded.png` | CF360 Document Upload Screen Flow embedded in the borrower portal page |
-
----
-
-### 09 · Integrations
-
-| File | What It Shows |
-|---|---|
-| `SS-23_Named-Credentials-SMS-Gateway.png` | CF360 SMS Gateway Named Credential — URL, authentication protocol, security configuration |
+| `SS-23_Named-Credentials-SMS-Gateway.png` | CF360 SMS Gateway Named Credential list — Secured Endpoint, Africa's Talking API URL |
+| `SS-23b_Named-Credentials-SMS-Gateway-Detail.png` | CF360 SMS Gateway detail — Label, URL, Authentication, Callout Options configuration |
 
 ---
 
@@ -122,15 +131,16 @@ All screenshots were captured from the live org. No mockups. No staging data.
 
 | Capability | Evidence |
 |---|---|
-| **Object-Oriented Data Modeling** | 12 custom objects with 180+ fields, visible relationships in Schema Builder |
-| **Advanced Flow Automation** | 27+ flows across Record-Triggered, Screen, and Scheduled types |
+| **Object-Oriented Data Modeling** | 10 custom objects with 180+ fields platform-wide, visible relationships in Schema Builder |
+| **Advanced Flow Automation** | 50+ flows across Record-Triggered, Screen, and Scheduled types |
 | **Multi-Currency Architecture** | 10-currency system auto-cascaded across 6 object layers via 5 flows — zero manual selection |
-| **Enterprise Security Design** | 17-role hierarchy, 13 permission sets, object- and field-level access control |
-| **Credit Governance** | 8 validation rules, 3 multi-level approval processes, covenant monitoring |
-| **Risk Scoring Engine** | 100-point formula-based score across 5 weighted dimensions |
-| **Borrower Self-Service Portal** | Experience Cloud site with embedded screen flows for document upload and loan status |
-| **Analytics & Reporting** | 4 dashboards, 10 reports, 5 custom report types — all running on live data |
-| **Integration Architecture** | Named Credentials + simulated SMS/credit bureau callout flows |
+| **Enterprise Security Design** | 18-role hierarchy, 13 permission sets, 16 permission set groups, object-level access control |
+| **Credit Governance** | 8 validation rules across 4 objects, 3 multi-level approval processes, covenant monitoring |
+| **Risk Scoring Engine** | Formula-based score with live tooltip showing 5-tier scoring legend |
+| **Stage Gate Enforcement** | Flows blocking stage transitions without required related records |
+| **Analytics & Reporting** | 4 dashboards, 10 reports — all running on live data |
+| **Integration Architecture** | Named Credentials pointing to Africa's Talking SMS API — real African market integration |
+| **Bilingual Platform** | Validation rule error messages in English and French — BCEAO/CEMAC compliance |
 
 ---
 
